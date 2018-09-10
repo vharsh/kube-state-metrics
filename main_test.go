@@ -71,7 +71,6 @@ func BenchmarkKubeStateMetrics(b *testing.B) {
 	// a one second wait. Use for memory allocation comparisons, profiling, ...
 	b.Run("GenerateMetrics", func(b *testing.B) {
 		collectors = builder.Build()
-
 		// Wait for caches to fill
 		time.Sleep(time.Second)
 	})
