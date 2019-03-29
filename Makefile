@@ -1,6 +1,6 @@
 FLAGS =
 TESTENVVAR =
-REGISTRY = quay.io/coreos
+REGISTRY = vharsh
 TAG_PREFIX = v
 TAG = $(TAG_PREFIX)$(shell cat VERSION)
 LATEST_RELEASE_BRANCH:=release-$(shell cat VERSION | grep -ohE "[0-9]+.[0-9]+")

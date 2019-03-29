@@ -753,18 +753,29 @@ var (
 func wrapPodFunc(f func(*v1.Pod) *metric.Family) func(interface{}) *metric.Family {
 	return func(obj interface{}) *metric.Family {
 		pod := obj.(*v1.Pod)
-
-		metricFamily := f(pod)
-
-		for _, m := range metricFamily.Metrics {
-			m.LabelKeys = append(descPodLabelsDefaultLabels, m.LabelKeys...)
-			m.LabelValues = append([]string{pod.Namespace, pod.Name}, m.LabelValues...)
+		if checkOpenEBSPod(pod) {
+			metricFamily := f(pod)
+			for _, m := range metricFamily.Metrics {
+				m.LabelKeys = append(descPodLabelsDefaultLabels, m.LabelKeys...)
+				m.LabelValues = append([]string{pod.Namespace, pod.Name}, m.LabelValues...)
+			}
+			return metricFamily
+		} else {
+			return &metric.Family{}
 		}
-
-		return metricFamily
 	}
 }
 
+func checkOpenEBSPod(p *v1.Pod) bool {
+	test := p.ObjectMeta.GetLabels()
+	if _, err1 := test["openebs.io"]; err1 {
+		return true
+	} else if _, err2 := test["openebs.io/component-name"]; err2 {
+		return true
+	} else {
+		return false
+	}
+}
 func createPodListWatch(kubeClient clientset.Interface, ns string) cache.ListWatch {
 	return cache.ListWatch{
 		ListFunc: func(opts metav1.ListOptions) (runtime.Object, error) {
